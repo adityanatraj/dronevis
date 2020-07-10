@@ -44,8 +44,10 @@ to processing as of today.
 This project is extremely alpha and could use help. 
 Any and all contributions via pull request are welcome!
 
-Possible todos:
-- be any amount smarter about step when conditions
+todos:
+- be able to the mess of variable type branches/events
+- be able to handle multiple branches as conditions
+- be able to handle multiple events as conditions
 - allow specifying where the files are saved
 - allow specifying what the output files are named
 - allow specifying the filetype of the output image
