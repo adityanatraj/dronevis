@@ -1,0 +1,197 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+# enables the MEMSTORE integration tests
+services:
+  - name: testredis
+    image: redis:4
+
+steps:
+
+## GLOBAL STEPS ACROSS ALL CODE BASES
+  - name: all-dependencies
+    when:
+      event: [ push ]
+
+  - name: all-linting
+    depends_on:
+      - all-dependencies
+    when:
+      event: [ push ]
+
+  - name: all-testing
+    depends_on:
+      - all-dependencies
+    when:
+      event: [ push ]
+
+## BUILD STEPS [ build-{name-of-object} ]
+  - name: build-everything
+    depends_on:
+      - all-linting
+      - all-testing
+    when:
+      event: [ push ]
+
+  - name: build-something
+    depends_on:
+      - all-linting
+      - all-testing
+    when:
+      event: [ push ]
+
+  - name: build-someone
+    depends_on:
+      - all-linting
+      - all-testing
+    when:
+      branch: master
+      event: [ push ]
+
+  - name: build-listscribe
+    depends_on:
+      - all-linting
+      - all-testing
+    when:
+      event: [ push ]
+
+  - name: build-updatels
+    depends_on:
+      - all-linting
+      - all-testing
+    when:
+      event: [ push ]
+
+## PUBLISH STEPS [ publish-{name-of-object} ]
+  - name: publish-everything
+    depends_on:
+      - build-everything
+    when:
+      branch: master
+      event: [ push ]
+
+
+  - name: publish-listscribe
+    depends_on:
+      - build-listscribe
+    when:
+      branch: master
+      event: [ push ]
+
+  - name: publish-updatels
+    depends_on:
+      - build-updatels
+    when:
+      branch: master
+      event: [ push ]
+
+
+  - name: publish-someone
+    depends_on:
+      - build-someone
+    when:
+      branch: master
+      event: [ push ]
+
+## DEPLOYMENT STEPS - DEV [ deploy-{name-of-object}-{environment} ]
+  - name: deploy-someone-dev
+    depends_on:
+      - publish-someone
+    when:
+      branch: master
+      event: [ push ]
+
+  - name: deploy-everything-dev
+    depends_on:
+      - publish-everything
+    when:
+      branch: master
+      event: [ push ]
+
+  - name: deploy-rcommander-dev
+    depends_on:
+      - publish-listscribe
+    when:
+      branch: master
+      event: [ push ]
+
+  - name: deploy-listscribe-dev
+    depends_on:
+      - publish-listscribe
+    when:
+      branch: master
+      event: [ push ]
+
+  - name: deploy-updatels-dev
+    depends_on:
+      - publish-updatels
+    when:
+      branch: master
+      event: [ push ]
+
+  - name: deploy-ingress-dev
+    depends_on:
+      - deploy-everything-dev
+      - deploy-listscribe-dev
+      - deploy-someone-dev
+    when:
+      branch: master
+      event: [ push ]
+
+  ## INTEGRATION TEST STEPS [ itest-{name-of-object}-{env} ]
+  - name: itest-everything-dev
+    depends_on:
+      - deploy-ingress-dev
+    when:
+      branch: master
+      event: [ push ]
+
+# ADDING THE ACROSS-ALL-APP ALERTS
+  - name: alerts-dev
+    depends_on:
+      - itest-everything-dev
+    when:
+      branch: master
+      event: [ push ]
+
+## DEPLOYMENT STEPS - PRD [ deploy-{name-of-object}-{environment} ]
+  - name: deploy-everything-prd
+    when:
+      event: [ tag ]
+
+  - name: deploy-someone-prd
+    when:
+      event: [ tag ]
+
+  - name: deploy-reporter-prd
+    when:
+      event: [ tag ]
+
+  - name: deploy-listscribe-prd
+    when:
+      event: [ tag ]
+
+  - name: deploy-rcommander-prd
+    when:
+      event: [ tag ]
+
+  - name: deploy-updatels-prd
+    when:
+      event: [ tag ]
+
+  - name: deploy-ingress-prd
+    depends_on:
+      - deploy-everything-prd
+      - deploy-someone-prd
+      - deploy-listscribe-prd
+      - deploy-updatels-prd
+    when:
+      event: [ tag ]
+
+  - name: alerts-prd
+    depends_on:
+      - deploy-ingress-prd
+    when:
+      event: [ tag ]
