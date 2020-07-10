@@ -45,7 +45,7 @@ This project is extremely alpha and could use help.
 Any and all contributions via pull request are welcome!
 
 Possible todos:
-- be smarter about step when-conditions
+- be any amount smarter about step when conditions
 - allow specifying where the files are saved
 - allow specifying what the output files are named
 - allow specifying the filetype of the output image

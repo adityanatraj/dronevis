@@ -57,10 +57,13 @@ func addCondition(m map[string][]Step, step Step) {
 }
 
 func normalizeCondition(c Condition) string {
-	if c.Branch == "" {
-		return fmt.Sprintf("%s:%v", "master", c.Event)
+	if c.Event[0] == "tag" {
+		return "tag"
 	}
-	return fmt.Sprintf("%s:%v", c.Branch, c.Event)
+	if c.Branch == "" {
+		return fmt.Sprintf("%s-%v", "master", c.Event)
+	}
+	return fmt.Sprintf("%s-%v", c.Branch, c.Event)
 }
 
 func drawGraph(cond string, steps []Step) error {
@@ -91,11 +94,10 @@ func drawGraph(cond string, steps []Step) error {
 				return fmt.Errorf("dependency [%s] for [%s] unknown", dep, step.Name)
 			}
 
-			e, err := graph.CreateEdge(cond, nodes[dep], nodes[step.Name])
+			_, err := graph.CreateEdge(cond, nodes[dep], nodes[step.Name])
 			if err != nil {
 				return err
 			}
-			e.SetLabel(cond)
 		}
 	}
 
@@ -107,7 +109,7 @@ func drawGraph(cond string, steps []Step) error {
 	// fmt.Println(buf.String())
 
 	// write to file directly
-	outpath := fmt.Sprintf("./%s.png", cond)
+	outpath := fmt.Sprintf("%s.png", cond)
 	if err := g.RenderFilename(graph, graphviz.PNG, outpath); err != nil {
 		return err
 	}
