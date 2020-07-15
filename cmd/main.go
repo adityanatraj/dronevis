@@ -23,14 +23,14 @@ func main() {
 		}
 		rdr = f
 	} else {
-		errorOut(fmt.Errorf("multiple files specified. sorry."))
+		errorOut(fmt.Errorf("multiple files specified. sorry. %s", "ugh"))
 	}
 
-	output, err := dronevis.Graph(rdr)
+	output, err := dronevis.Graph2(rdr)
 	if err != nil {
 		errorOut(err)
 	}
-	fmt.Println(output)
+	fmt.Println(output[1])
 }
 
 func errorOut(err error) {

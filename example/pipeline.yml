@@ -47,7 +47,6 @@ steps:
       - all-linting
       - all-testing
     when:
-      branch: master
       event: [ push ]
 
   - name: build-listscribe
